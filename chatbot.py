@@ -19,7 +19,7 @@ def chat_with_gpt(messages):
         'completion_tokens': chat_gpt_response.usage.completion_tokens,
         'total_tokens': chat_gpt_response.usage.total_tokens,
     }
-    print(chat_gpt_response)
+    # print(chat_gpt_response)
     return chat_gpt_response.choices[0].message.content.strip(), token_dict
 
 # code to be executed when the script run directly
@@ -34,8 +34,9 @@ if __name__ == '__main__':
 
         response, tokens = chat_with_gpt(chat_context)
         print("Chatbot: ", response)
-        print("Tokens used: ")
-        for usage in tokens: print(usage, ": ", tokens[usage])
+        print("Tokens used in this session: ")
+        for type_of_usage in tokens:
+            print(type_of_usage, ": ", tokens[type_of_usage])
 
         chat_context.append({'role': 'assistant', 'content': str(response)})
 
