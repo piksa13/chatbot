@@ -1,3 +1,4 @@
+import openai
 from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
 import os
@@ -32,12 +33,22 @@ if __name__ == '__main__':
 
         chat_context.append({'role' : 'user', 'content': user_input})
 
-        response, tokens = chat_with_gpt(chat_context)
-        print("Chatbot: ", response)
-        print("Tokens used in this session: ")
-        for type_of_usage in tokens:
-            print(type_of_usage, ": ", tokens[type_of_usage])
+        moderator = client.moderations.create(
+            model="omni-moderation-latest",
+            input=user_input)
+        response_dict = moderator.model_dump()
+        prompt_flagged = response_dict['results'][0]['flagged']
 
-        chat_context.append({'role': 'assistant', 'content': str(response)})
+        if prompt_flagged:
+            print("\nI am sorry but your message was flagged by moderator. Try again.\n")
+        else:
+            response, tokens = chat_with_gpt(chat_context)
+            print("Chatbot: ", response)
+            print("----------------------\nTokens used in this session: ")
+            for type_of_usage in tokens:
+                print(type_of_usage, ": ", tokens[type_of_usage])
+
+            chat_context.append({'role': 'assistant', 'content': str(response)})
+
 
 # make the context of all the responses
