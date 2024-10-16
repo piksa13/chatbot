@@ -10,10 +10,17 @@ def chat_with_gpt(messages):
     chat_gpt_response = client.chat.completions.create(
         model = "gpt-4o-mini",
         messages = messages,
-        temperature = 0
+        temperature = 0,
+        max_tokens = 500
     )
 
-    return chat_gpt_response.choices[0].message.content.strip()
+    token_dict = {
+        'prompt_tokens': chat_gpt_response.usage.prompt_tokens,
+        'completion_tokens': chat_gpt_response.usage.completion_tokens,
+        'total_tokens': chat_gpt_response.usage.total_tokens,
+    }
+    print(chat_gpt_response)
+    return chat_gpt_response.choices[0].message.content.strip(), token_dict
 
 # code to be executed when the script run directly
 if __name__ == '__main__':
@@ -25,8 +32,10 @@ if __name__ == '__main__':
 
         chat_context.append({'role' : 'user', 'content': user_input})
 
-        response = chat_with_gpt(chat_context)
+        response, tokens = chat_with_gpt(chat_context)
         print("Chatbot: ", response)
+        print("Tokens used: ")
+        for usage in tokens: print(usage, ": ", tokens[usage])
 
         chat_context.append({'role': 'assistant', 'content': str(response)})
 
